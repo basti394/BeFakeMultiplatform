@@ -1,6 +1,7 @@
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
+import io.ktor.client.engine.HttpClientEngine
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.core.definition.Definition
 import org.koin.core.definition.KoinDefinition
@@ -21,3 +22,5 @@ expect inline fun <reified T : ViewModel> Module.viewModelDefinition(
     qualifier: Qualifier? = null,
     noinline definition: Definition<T>
 ): KoinDefinition<T>
+
+expect val defaultPlatformEngine: HttpClientEngine

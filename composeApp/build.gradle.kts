@@ -103,8 +103,10 @@ kotlin {
             iosArm64Main.dependsOn(this)
             iosSimulatorArm64Main.dependsOn(this)
             dependencies {
-                implementation(libs.ktor.client.ios)
                 implementation(libs.sqldelight.native.driver)
+                implementation("app.cash.molecule:molecule-runtime:1.3.2")
+                implementation(libs.ktor.client.ios)
+                implementation(libs.koin.core)
             }
         }
     }

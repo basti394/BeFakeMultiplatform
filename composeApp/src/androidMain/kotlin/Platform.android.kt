@@ -7,12 +7,15 @@ import com.squareup.sqldelight.ColumnAdapter
 import com.squareup.sqldelight.EnumColumnAdapter
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
+import io.ktor.client.engine.*
 import io.ktor.client.engine.android.Android
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.Json.Default.decodeFromString
 import kotlinx.serialization.json.Json.Default.encodeToString
+import org.koin.android.ext.koin.androidApplication
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.definition.Definition
 import org.koin.core.definition.KoinDefinition
@@ -34,7 +37,7 @@ actual fun platformModule(allowUnsafeTraffic: Boolean) = module {
     single {
         val driver = AndroidSqliteDriver(
             BeFakeDatabase.Schema,
-            get(),
+            androidContext(),
             "befake.db",
             callback = object : AndroidSqliteDriver.Callback(BeFakeDatabase.Schema) {
                 override fun onOpen(db: SupportSQLiteDatabase) {
@@ -61,3 +64,5 @@ actual inline fun <reified T : ViewModel> Module.viewModelDefinition(
     qualifier: Qualifier?,
     noinline definition: Definition<T>,
 ): KoinDefinition<T> = viewModel(qualifier = qualifier, definition = definition)
+
+actual val defaultPlatformEngine: HttpClientEngine = Android.create()

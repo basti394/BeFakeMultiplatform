@@ -29,6 +29,7 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.KoinApplication
 import org.koin.core.KoinApplication.Companion.init
+import pizza.xyz.befake.db.BeFakeDatabase
 import pizza.xyz.befake.model.dtos.feed.ProfilePicture
 import pizza.xyz.befake.model.dtos.feed.User
 import ui.composables.BeFakeTopAppBar
