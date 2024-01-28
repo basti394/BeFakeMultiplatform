@@ -3,7 +3,11 @@ package data.service
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.util.InternalAPI
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import pizza.xyz.befake.model.dtos.comment.CommentRequestDTO
 import pizza.xyz.befake.model.dtos.comment.CommentResponseDTO
@@ -35,6 +39,7 @@ class PostServiceImpl(
                 postId = postId,
                 comment = comment
             )
+            contentType(ContentType.Application.Json)
         }.body<CommentResponseDTO>()
     }
 }

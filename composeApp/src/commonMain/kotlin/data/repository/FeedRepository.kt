@@ -1,6 +1,5 @@
 package data.repository
 
-import com.benasher44.uuid.uuid4
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToOne
 import kotlinx.coroutines.flow.Flow
@@ -10,7 +9,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import pizza.xyz.befake.db.Post
 import pizza.xyz.befake.model.dtos.feed.FriendsPosts
-import pizza.xyz.befake.model.dtos.feed.PostData
+import model.dtos.feed.PostData
 import pizza.xyz.befake.db.BeFakeDatabase
 
 interface FeedRepository {
@@ -33,16 +32,9 @@ class FeedRepositoryImpl(
     }
 
     override suspend fun updateFeed() {
-        val existingPost = database.postQueries.getPost().executeAsOne()
         friendsService.feed().onSuccess {
             it.data.data?.let { data ->
-                if (existingPost.data_ != null) {
-                    database.postQueries.insert(formatFeed(data))
-                    return
-                } else {
-                    database.postQueries.insert(formatFeed(data))
-                    return
-                }
+                database.postQueries.insert(formatFeed(data))
             }
         }
     }

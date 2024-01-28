@@ -52,8 +52,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.icerock.moko.resources.compose.stringResource
+import io.kamel.core.Resource
+import io.kamel.image.KamelImage
+import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pizza.xyz.befake.model.dtos.feed.FriendsPosts
@@ -285,6 +289,7 @@ fun Reactions(
     modifier: Modifier = Modifier,
     reactions: List<RealMojis>
 ) {
+
     Box(
         modifier = modifier
             .padding(16.dp)
@@ -312,6 +317,9 @@ fun Reactions(
             }
         }
         reactionsPreview.forEachIndexed { index, realMoji ->
+            val painter = asyncPainterResource(realMoji.media.url) {
+                coroutineContext = Job() + Dispatchers.IO
+            }
             val padding = 25.dp * (reactionsPreview.size - (index + 1))
             Box(
                 modifier = modifier
@@ -324,14 +332,18 @@ fun Reactions(
                 Spacer(
                     modifier = Modifier.size(35.dp).background(Color.Gray)
                 )
-                /*AsyncImage(
-                    modifier = Modifier
-                        .size(35.dp)
-                        .clip(CircleShape),
-                    placeholder = debugPlaceholderProfilePicture(id = MR.drawable.profile_picture_example),
-                    model = realMoji.media.url,
-                    contentDescription = "realMoji"
-                )*/
+                when (painter) {
+                    is Resource.Success -> {
+                        KamelImage(
+                            modifier = Modifier
+                                .size(35.dp)
+                                .clip(CircleShape),
+                            resource = painter,
+                            contentDescription = "realmoji",
+                        )
+                    }
+                    else -> Spacer(modifier = modifier.clip(CircleShape).background(Color.Gray))
+                }
             }
         }
     }
@@ -374,8 +386,9 @@ fun ActionButtons(
 }
 
 @Composable
-fun PostLoading(
-    height: Int = 550
+fun PostLoadingWithHeader(
+    height: Float = 550f,
+    width: Float = 500f * 0.75f
 ) {
     Column(
         modifier = Modifier
@@ -394,19 +407,28 @@ fun PostLoading(
             secondaryLink = "",
             parentUsername = null,
         )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .size(height.dp)
-                .clip(RoundedCornerShape(cornerRadius.dp))
-                .background(shimmerBrush())
-        )
+        PostLoading(height = height, width = width)
         Text(
             modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
             text = stringResource(MR.strings.add_comment),
             color = Color.Gray,
         )
     }
+}
+
+@Composable
+fun PostLoading(
+    height: Float = 550f,
+    width: Float = 500f * 0.75f
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .size(height.dp)
+            .width(width.dp)
+            .clip(RoundedCornerShape(cornerRadius.dp))
+            .background(shimmerBrush())
+    )
 }
 
 

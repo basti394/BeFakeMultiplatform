@@ -1,26 +1,32 @@
 package ui.viewmodel
 
+import com.vanniktech.locale.displayName
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import pizza.xyz.befake.model.dtos.countrycode.Country
 import pizza.xyz.befake.utils.Utils
 
-class CountryCodeSelectionSheetViewModel(
-
-) : ViewModel() {
+class CountryCodeSelectionSheetViewModel : ViewModel() {
 
     private val _countries = MutableStateFlow<List<Country>>(emptyList())
     val countries = _countries.asStateFlow()
 
-    private val allCountries = emptyList<Country>()
+    private val allCountries = com.vanniktech.locale.Country.entries.filter { it.code != "XZ" }.map {
+        Country(
+            name = it.displayName(),
+            dialCode = it.callingCodes.first(),
+            code = it.code,
+            flag = it.emoji
+        )
+    }
 
     init {
         getCountries()
     }
 
     private fun getCountries() {
-        _countries.value = emptyList()
+        _countries.value = allCountries
     }
 
     fun searchCountry(value: String) {

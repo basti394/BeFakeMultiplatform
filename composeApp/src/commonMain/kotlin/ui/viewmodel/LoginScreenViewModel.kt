@@ -4,6 +4,7 @@ import BeFake.composeApp.MR
 import com.vanniktech.locale.Locale
 import com.vanniktech.locale.Locales
 import com.vanniktech.locale.displayName
+import data.repository.UserRepository
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import dev.icerock.moko.resources.StringResource
 import kotlinx.coroutines.Dispatchers
@@ -17,17 +18,17 @@ import data.service.LoginService
 import pizza.xyz.befake.model.dtos.countrycode.Country
 import pizza.xyz.befake.model.dtos.feed.ProfilePicture
 import pizza.xyz.befake.model.dtos.feed.User
-import pizza.xyz.befake.model.dtos.login.LoginRequestDTO
-import pizza.xyz.befake.model.dtos.verify.VerifyOTPRequestDTO
+import model.dtos.login.LoginRequestDTO
+import model.dtos.verify.VerifyOTPRequestDTO
+import pizza.xyz.befake.db.BeFakeDatabase
 
 class LoginScreenViewModel(
     private val loginService: LoginService,
     private val friendsService: FriendsService,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     val loginState = loginService.loginState
-
-    val user: MutableStateFlow<User?> = MutableStateFlow(null)
 
     private val _phoneNumber = MutableStateFlow("")
     val phoneNumber = _phoneNumber.asStateFlow()
@@ -52,18 +53,12 @@ class LoginScreenViewModel(
         viewModelScope.launch {
             loginService.loginState.collect {
                 if (it is LoginState.LoggedIn) {
-                    friendsService.me().onSuccess {
-                        user.value = User(
-                            it.data.id,
-                            it.data.username,
-                            it.data.profilePicture?.let { pb ->
-                                ProfilePicture(
-                                    pb.url,
-                                    pb.height,
-                                    pb.width
-                                )
-                            },
-                        )
+                    friendsService.me().onSuccess { res ->
+                        userRepository.setUserData(User(
+                            res.data.id,
+                            res.data.username,
+                            res.data.profilePicture,
+                        ))
                     }
                 }
             }
@@ -71,13 +66,9 @@ class LoginScreenViewModel(
     }
 
     private fun setDefaultCountry() {
-
         Locale.from(Locales.currentLocaleString()).country?.let { country ->
-            val dialCode = "+49"//getCountries().find { it.code == country.callingCodes.first()  }?.dialCode ?: "+49"
-            _country.value = Country(country.displayName(), dialCode, country.code)
+            _country.value = Country(country.displayName(), country.callingCodes.first(), country.code, country.emoji)
         }
-
-
     }
 
     fun onCountryChanged(newCountry: Country) {
@@ -95,8 +86,20 @@ class LoginScreenViewModel(
         val phoneNumberWithCountry = "${country.value.dialCode}${phoneNumber.value}"
         viewModelScope.launch {
             loginService.sendCode(LoginRequestDTO(phoneNumberWithCountry)).onSuccess {
-                _otpSession.value = it.data?.otpSession ?: ""
+                if (it.status == 201) {
+                    _otpSession.value = it.data?.otpSession ?: ""
+                } else {
+                    loginService.setLoginState(
+                        LoginState.Error(
+                            LoginState.PhoneNumber,
+                            MR.strings.something_went_wrong_please_try_again,
+                            it.message
+                        )
+                    )
+                }
             }.onFailure {
+                println(it.message)
+                println(it.printStackTrace())
                 if (it.message != "Invalid phone number") {
                     loginService.setLoginState(
                         LoginState.Error(

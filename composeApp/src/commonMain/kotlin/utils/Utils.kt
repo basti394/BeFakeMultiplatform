@@ -26,7 +26,7 @@ object Utils {
 
     //val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth")
     //val TOKEN = stringPreferencesKey("token")
-    const val BASE_URL = "https://berealapi.fly.dev/"
+    const val BASE_URL = "https://berealapi.fly.dev"
     const val flagType = "flat" // flat or shiny
 
     /*fun getCountries(): List<Country> {

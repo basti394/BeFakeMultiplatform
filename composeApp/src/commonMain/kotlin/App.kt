@@ -10,6 +10,8 @@ import androidx.compose.material.Text
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,6 +22,8 @@ import androidx.compose.ui.graphics.Color
 import dev.icerock.moko.resources.compose.stringResource
 import di.appModule
 import moe.tlaster.precompose.PreComposeApp
+import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
+import moe.tlaster.precompose.koin.koinViewModel
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.path
 import moe.tlaster.precompose.navigation.query
@@ -28,6 +32,7 @@ import moe.tlaster.precompose.navigation.transition.NavTransition
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.KoinApplication
+import org.koin.compose.koinInject
 import org.koin.core.KoinApplication.Companion.init
 import pizza.xyz.befake.db.BeFakeDatabase
 import pizza.xyz.befake.model.dtos.feed.ProfilePicture
@@ -36,11 +41,20 @@ import ui.composables.BeFakeTopAppBar
 import ui.screens.HomeScreen
 import ui.screens.LoginScreen
 import ui.screens.PostDetailScreen
+import ui.viewmodel.LoginScreenViewModel
 import ui.viewmodel.LoginState
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
-fun App() {
+fun App(
+    viewModel: LoginScreenViewModel = koinInject()
+) {
+
+    val loginState by viewModel.loginState.collectAsState()
+
+    LaunchedEffect(loginState) {
+        println("Login State: $loginState")
+    }
+
     PreComposeApp {
         KoinApplication(application = {
             modules(
@@ -51,16 +65,7 @@ fun App() {
         }) {
             MaterialTheme {
                 MainContent(
-                    loginState = LoginState.LoggedIn,
-                    user = User(
-                        id = "1",
-                        username = "test",
-                        profilePicture = ProfilePicture(
-                            "https://picsum.photos/200/300",
-                            30,
-                            30
-                        )
-                    )
+                    loginState = loginState,
                 )
             }
         }
@@ -71,17 +76,14 @@ fun App() {
 @Composable
 fun MainContent(
     loginState: LoginState,
-    user: User?
 ) {
+
     if (
         loginState != LoginState.LoggedIn
     ) {
         Scaffold(
             topBar = {
-                BeFakeTopAppBar(
-                    loginState,
-                    user
-                )
+                BeFakeTopAppBar()
             },
             containerColor = Color.Black
         ) { paddingValues ->
@@ -116,10 +118,7 @@ fun MainContent(
 
                 Scaffold(
                     topBar = {
-                        BeFakeTopAppBar(
-                            loginState,
-                            user
-                        )
+                        BeFakeTopAppBar()
                     },
                     containerColor = Color.Black
                 ) { paddingValues ->
@@ -130,7 +129,7 @@ fun MainContent(
                 }
             }
             scene(
-                "post/{username}?selectedPost={selectedPost}&focusInput={focusInput}&focusRealMojis={focusRealMojis}",
+                "post/{username}",
                 /*arguments = listOf(
                     navArgument("username") {
                         defaultValue = ""
@@ -167,7 +166,6 @@ fun MainContent(
                     focusInput = focusInput,
                     onBack = { navigator.popBackStack() },
                     focusRealMojis = focusRealMojis,
-                    myUser = user
                 )
             }
         }

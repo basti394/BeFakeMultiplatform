@@ -1,12 +1,17 @@
+import pizza.xyz.befake.model.dtos.feed.User;
+
 CREATE TABLE User(
-    id TEXT NOT NULL PRIMARY KEY,
-    username TEXT NOT NULL,
+    id INTEGER NOT NULL PRIMARY KEY,
+    data TEXT AS User NOT NULL,
     token TEXT NOT NULL
 );
 
 insert:
-INSERT OR REPLACE INTO User(id, username, token)
+INSERT OR REPLACE INTO User(id, data, token)
 VALUES (0, ?, ?);
+
+insertUserData:
+UPDATE User SET data = ? WHERE id = 0;
 
 select:
 SELECT *
@@ -14,6 +19,9 @@ FROM User;
 
 getToken:
 SELECT token FROM User WHERE id = 0;
+
+getUser:
+SELECT data FROM User WHERE id = 0;
 
 deleteToken:
 UPDATE User SET token = "" WHERE id = 0;

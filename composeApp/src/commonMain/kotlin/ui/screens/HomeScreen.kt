@@ -16,12 +16,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
-import pizza.xyz.befake.model.dtos.feed.PostData
+import model.dtos.feed.PostData
 import pizza.xyz.befake.model.dtos.feed.User
 import ui.composables.Post
-import ui.composables.PostLoading
+import ui.composables.PostLoadingWithHeader
 import ui.viewmodel.HomeScreenState
 import ui.viewmodel.HomeScreenViewModel
 
@@ -32,9 +31,9 @@ fun HomeScreen(
     openDetailScreen: (String, Int, Boolean, Boolean) -> Unit
 ) {
 
-    val feed by homeScreenViewModel.feed.collectAsStateWithLifecycle()
-    val state by homeScreenViewModel.state.collectAsStateWithLifecycle()
-    val myUser by homeScreenViewModel.myUser.collectAsStateWithLifecycle()
+    val feed by homeScreenViewModel.feed.collectAsState()
+    val state by homeScreenViewModel.state.collectAsState()
+    val myUser by homeScreenViewModel.myUser.collectAsState()
 
     HomeScreenContent(
         feed = feed?.data_,
@@ -61,7 +60,7 @@ fun HomeScreenContent(
         when (state) {
             is HomeScreenState.Loading -> {
                 items(4) {
-                    PostLoading()
+                    PostLoadingWithHeader()
                 }
             }
 

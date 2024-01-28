@@ -187,14 +187,11 @@ fun CountryCodeItem(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Spacer(modifier = Modifier.size(30.dp).background(Color.Gray))
-                /*AsyncImage(
-                    modifier = Modifier
-                        .size(30.dp),
-                    model = "https://flagsapi.com/${country.code}/$flagType/64.png",
-                    contentDescription = "flag",
-                    placeholder = debugPlaceholder(id = MR.drawable.country_example),
-                )*/
+                Text(
+                    modifier = Modifier.size(30.dp),
+                    text = country.flag ?: "",
+                    fontSize = 20.sp
+                )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = "${country.name} (${country.dialCode})",

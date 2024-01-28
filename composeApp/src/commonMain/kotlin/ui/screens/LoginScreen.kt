@@ -277,11 +277,19 @@ fun LoginScreenContent(
                     contentAlignment = Alignment.Center
                 ) {
                     if (loginState is LoginState.Loading) {
-                        CircularProgressIndicator(
+                        Text(
+                            text = "Loading...",
+                            style = TextStyle(
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp
+                            )
+                        )
+                        /*CircularProgressIndicator(
                             modifier = Modifier.size(25.dp),
                             color = Color.Black,
                             strokeWidth = 3.dp
-                        )
+                        )*/
                     } else {
                         Text(
                             text = buttonText,
@@ -396,16 +404,13 @@ fun CountryCodeSelector(
             .clickable { openDialog() }
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Spacer(modifier = Modifier.size(40.dp))
-            /*AsyncImage(
-                modifier = Modifier
-                    .size(40.dp),
-                model = "https://flagsapi.com/${currentCountry.code}/$flagType/64.png",
-                contentDescription = "flag",
-                placeholder = debugPlaceholder(id = MR.images.country_example),
-            )*/
+            Text(
+                modifier = Modifier.size(40.dp),
+                text = currentCountry.flag ?: "",
+                fontSize = 30.sp
+            )
             Text(
                 text = currentCountry.dialCode,
                 style = TextStyle(

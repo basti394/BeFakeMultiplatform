@@ -7,13 +7,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import data.repository.FeedRepository
+import data.repository.UserRepository
 import data.service.FriendsService
+import pizza.xyz.befake.db.BeFakeDatabase
 import pizza.xyz.befake.db.Post
+import pizza.xyz.befake.model.dtos.feed.ProfilePicture
 import pizza.xyz.befake.model.dtos.feed.User
 
 class HomeScreenViewModel(
     private val feedRepository: FeedRepository,
     private val friendsService: FriendsService,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _feed: MutableStateFlow<Post?> = MutableStateFlow(null)

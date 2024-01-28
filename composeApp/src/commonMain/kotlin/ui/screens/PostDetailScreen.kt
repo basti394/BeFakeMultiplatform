@@ -49,6 +49,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -76,6 +77,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.icerock.moko.resources.compose.stringResource
+import io.kamel.core.Resource
+import io.kamel.image.KamelImage
+import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import model.dtos.feed.Comment
@@ -98,7 +102,6 @@ import kotlin.math.absoluteValue
 @Composable
 fun PostDetailScreen(
     postUsername: String,
-    myUser: User?,
     selectedPost: Int?,
     focusInput: Boolean?,
     viewModel: PostDetailScreenViewModel = koinInject(),
@@ -107,6 +110,7 @@ fun PostDetailScreen(
 ) {
 
     val post by viewModel.post.collectAsStateWithLifecycle()
+    val myUser by viewModel.myUser.collectAsState()
 
     var current by remember {
         mutableIntStateOf(selectedPost ?: 0)
@@ -687,50 +691,58 @@ fun Reaction(
     realMoji: RealMojis?,
     onReactionClick: () -> Unit,
 ) {
-    Column(
-        modifier = modifier
-            .width(90.dp)
-            .clickable { onReactionClick() },
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box {
-            Box(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .border(
-                        width = 2.dp,
-                        color = if (myReaction) Color.White else Color.Transparent,
-                        shape = CircleShape
-                    )
-                    .size(90.dp)
-            ) {
-                Spacer(modifier = Modifier.size(80.dp))
-                /*AsyncImage(
+    realMoji?.let {
+        val painter = asyncPainterResource(it.media.url)
+        Column(
+            modifier = modifier
+                .width(90.dp)
+                .clickable { onReactionClick() },
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box {
+                Box(
                     modifier = Modifier
-                        .size(80.dp)
                         .clip(CircleShape)
-                        .align(Alignment.Center),
-                    placeholder = Utils.debugPlaceholderProfilePicture(id = MR.drawable.profile_picture_example),
-                    model = realMoji?.media?.url,
-                    contentDescription = "profilePicture"
-                )*/
+                        .border(
+                            width = 2.dp,
+                            color = if (myReaction) Color.White else Color.Transparent,
+                            shape = CircleShape
+                        )
+                        .size(90.dp)
+                ) {
+                    Spacer(modifier = Modifier.size(80.dp))
+                    when (painter) {
+                        is Resource.Success -> {
+                            KamelImage(
+                                modifier = Modifier.size(80.dp).clip(CircleShape),
+                                resource = painter,
+                                contentDescription = "realMoji",
+                            )
+                        }
+                        else -> {
+                            Spacer(modifier = Modifier.size(80.dp).clip(CircleShape).background(Color.Gray))
+                        }
+                    }
+                }
+                Text(
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    text = realMoji.emoji,
+                    fontSize = 20.sp,
+                )
             }
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                modifier = Modifier.align(Alignment.BottomEnd),
-                text = realMoji?.emoji ?: "",
-                fontSize = 20.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                text = realMoji.user.username,
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            text = realMoji?.user?.username ?: "",
-            color = Color.White,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold
-        )
     }
+
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -758,60 +770,66 @@ fun ReactionDetail(
     realMoji: RealMojis?
 ) {
 
-    //val context = LocalContext.current
+    realMoji?.let {
 
-    Box(modifier = Modifier
-        .height(350.dp)
-        .fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .align(Alignment.TopCenter),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        val painter = asyncPainterResource(it.media.url)
+
+        Box(modifier = Modifier
+            .height(350.dp)
+            .fillMaxWidth()
         ) {
-            Box {
-                Spacer(modifier = Modifier.size(200.dp))
-                /*AsyncImage(
-                    modifier = Modifier
-                        .size(200.dp)
-                        .clip(CircleShape),
-                    placeholder = Utils.debugPlaceholderProfilePicture(id = MR.drawable.profile_picture_example),
-                    model = realMoji?.media?.url,
-                    contentDescription = "profilePicture"
-                )*/
+            Column(
+                modifier = Modifier
+                    .align(Alignment.TopCenter),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Box {
+                    when (painter) {
+                        is Resource.Success -> {
+                            KamelImage(
+                                modifier = Modifier.size(200.dp).clip(CircleShape),
+                                resource = painter,
+                                contentDescription = "realMoji",
+                            )
+                        }
+                        else -> {
+                            Spacer(modifier = Modifier.size(200.dp).clip(CircleShape).background(Color.Gray))
+                        }
+                    }
+                    Text(
+                        modifier = Modifier.align(Alignment.BottomEnd),
+                        text = it.emoji,
+                        fontSize = 40.sp,
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    modifier = Modifier.align(Alignment.BottomEnd),
-                    text = realMoji?.emoji ?: "",
-                    fontSize = 40.sp,
+                    text = it.user.username,
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = it.postedAt.let { /*Utils.getTime(it, true, context)*/null } ?: "",
+                    color = Color.Gray,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                AssistChip(
+                    label = {
+                        Icon(
+                            imageVector = Icons.Default.Download,
+                            contentDescription = "Back",
+                            tint = Color.White,
+                            modifier = Modifier
+                                .size(16.dp)
+                        )
+                    },
+                    onClick = { /*Utils.download(realMoji?.media?.url ?: "", "${realMoji?.user?.username}'s reaction", context)*/ }
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = realMoji?.user?.username ?: "",
-                color = Color.White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = realMoji?.postedAt?.let { /*Utils.getTime(it, true, context)*/null } ?: "",
-                color = Color.Gray,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            AssistChip(
-                label = {
-                    Icon(
-                        imageVector = Icons.Default.Download,
-                        contentDescription = "Back",
-                        tint = Color.White,
-                        modifier = Modifier
-                            .size(16.dp)
-                    )
-                },
-                onClick = { /*Utils.download(realMoji?.media?.url ?: "", "${realMoji?.user?.username}'s reaction", context)*/ }
-            )
         }
     }
 }

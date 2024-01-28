@@ -4,17 +4,13 @@ import androidx.compose.runtime.State
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.squareup.sqldelight.ColumnAdapter
-import com.squareup.sqldelight.EnumColumnAdapter
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.ktor.client.engine.*
 import io.ktor.client.engine.android.Android
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.serialization.SerializationStrategy
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.Json.Default.decodeFromString
 import kotlinx.serialization.json.Json.Default.encodeToString
-import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.definition.Definition
@@ -23,9 +19,9 @@ import org.koin.core.module.Module
 import org.koin.core.qualifier.Qualifier
 import org.koin.dsl.module
 import pizza.xyz.befake.db.Post
-import pizza.xyz.befake.model.dtos.feed.PostData
+import model.dtos.feed.PostData
 import pizza.xyz.befake.db.BeFakeDatabase
-import kotlin.coroutines.CoroutineContext
+import pizza.xyz.befake.model.dtos.feed.User
 
 class AndroidPlatform : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
@@ -34,7 +30,7 @@ class AndroidPlatform : Platform {
 actual fun getPlatform(): Platform = AndroidPlatform()
 
 actual fun platformModule(allowUnsafeTraffic: Boolean) = module {
-    single {
+    single<BeFakeDatabase> {
         val driver = AndroidSqliteDriver(
             BeFakeDatabase.Schema,
             androidContext(),
@@ -49,6 +45,9 @@ actual fun platformModule(allowUnsafeTraffic: Boolean) = module {
             driver = driver,
             PostAdapter = Post.Adapter(
                 data_Adapter = postAdapter
+            ),
+            UserAdapter = pizza.xyz.befake.db.User.Adapter(
+                data_Adapter = userAdapter
             )
         )
         beFakeDatabase
@@ -59,6 +58,14 @@ private val postAdapter = object : ColumnAdapter<PostData, String> {
     override fun decode(databaseValue: String) = decodeFromString(PostData.serializer(), databaseValue)
     override fun encode(value: PostData) = encodeToString(PostData.serializer(), value = value)
 }
+
+private val userAdapter = object : ColumnAdapter<User, String> {
+    override fun decode(databaseValue: String) = decodeFromString(User.serializer(), databaseValue)
+    override fun encode(value: User) = encodeToString(User.serializer(), value = value)
+}
+
+@Composable
+actual fun <T> StateFlow<T>.collectAsStateMultiplatform(): State<T> = collectAsStateWithLifecycle()
 
 actual inline fun <reified T : ViewModel> Module.viewModelDefinition(
     qualifier: Qualifier?,

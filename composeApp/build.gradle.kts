@@ -6,8 +6,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.serialization)
     id("com.squareup.sqldelight")
-    kotlin("plugin.serialization") version libs.versions.kotlin.get()
 }
 
 kotlin {
@@ -92,6 +92,7 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
 
             implementation("com.benasher44:uuid:0.8.2")
+            implementation("media.kamel:kamel-image:0.9.1")
 
             implementation(libs.sqldelight.runtime)
             implementation(libs.sqldelight.coroutines.extensions)

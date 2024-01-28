@@ -7,7 +7,7 @@ import io.ktor.client.request.header
 import org.koin.core.component.KoinComponent
 import pizza.xyz.befake.model.dtos.feed.FeedResponseDTO
 import pizza.xyz.befake.model.dtos.friendsOfFriends.FriendsOfFriendsResponseDTO
-import pizza.xyz.befake.model.dtos.me.MeResponseDTO
+import model.dtos.me.MeResponseDTO
 import pizza.xyz.befake.utils.Utils.BASE_URL
 
 interface FriendsService {
@@ -25,20 +25,16 @@ class FriendsServiceImpl(
 ): KoinComponent, FriendsService {
 
     override suspend fun feed(): Result<FeedResponseDTO> = runCatching {
-        return@runCatching client.get("$baseUrl/friends/feed") {
-            header("token", "sadf")
-        }.body<FeedResponseDTO>()
-    }
+        val res = client.get("$baseUrl/friends/feed")
+        println(res.body<String>())
+        return@runCatching res.body<FeedResponseDTO>()
+    }.onFailure { it.printStackTrace() }
 
     override suspend fun friendsOfFriends(): Result<FriendsOfFriendsResponseDTO> = runCatching {
-        return@runCatching client.get("$baseUrl/friends/friends-of-friends") {
-            header("token", "sadf")
-        }.body<FriendsOfFriendsResponseDTO>()
-    }
+        return@runCatching client.get("$baseUrl/friends/friends-of-friends").body<FriendsOfFriendsResponseDTO>()
+    }.onFailure { it.printStackTrace() }
 
     override suspend fun me(): Result<MeResponseDTO> = runCatching {
-        return@runCatching client.get("$baseUrl/friends/me") {
-            header("token", "sadf")
-        }.body<MeResponseDTO>()
-    }
+        return@runCatching client.get("$baseUrl/friends/me").body<MeResponseDTO>()
+    }.onFailure { it.printStackTrace() }
 }

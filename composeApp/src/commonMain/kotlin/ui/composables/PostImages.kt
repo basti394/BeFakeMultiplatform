@@ -1,6 +1,5 @@
 package pizza.xyz.befake.ui.composables
 
-import BeFake.composeApp.MR
 import androidx.compose.animation.core.animate
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,10 +31,15 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import io.kamel.core.Resource
+import io.kamel.image.KamelImage
+import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import pizza.xyz.befake.model.dtos.feed.Posts
 import pizza.xyz.befake.utils.Utils
+import ui.composables.PostLoading
+import ui.composables.PostLoadingWithHeader
 import kotlin.math.roundToInt
 
 
@@ -62,8 +66,8 @@ fun PostImagesV2(
     val coroutineScope = rememberCoroutineScope()
     var outerBoxSize by remember { mutableStateOf(Offset(0f, 0f)) }
     val haptic = LocalHapticFeedback.current
-    val primary = remember { post.primary.url }
-    val secondary = remember { post.secondary.url }
+    val primary = asyncPainterResource(post.primary.url)
+    val secondary = asyncPainterResource(post.secondary.url)
     var showPrimaryAsMain by remember {
         mutableStateOf(true)
     }
@@ -163,19 +167,14 @@ fun PostImagesV2(
                 )
             }*/
         } else {
-            Spacer(modifier = Modifier.fillMaxSize())
-            /*AsyncImage(
-                model = secondary,
-                contentDescription = "primary",
-                placeholder = Utils.debugPlaceholderPost(id = MR.drawable.post_example),
-            )*/
-
-            if (showPrimaryAsMain) {
-                /*AsyncImage(
-                    model = primary,
-                    contentDescription = "primary",
-                    placeholder = Utils.debugPlaceholderPost(id = MR.drawable.post_example),
-                )*/
+            when (val painter = if (showPrimaryAsMain) primary else secondary) {
+                is Resource.Success -> {
+                    KamelImage(
+                        resource = painter,
+                        contentDescription = "realmoji",
+                    )
+                }
+                else -> PostLoading()
             }
         }
 
@@ -225,39 +224,24 @@ fun PostImagesV2(
                     }
             ) {
                 Spacer(modifier = Modifier.fillMaxSize())
-                /*AsyncImage(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(cornerRadiusV2.dp))
-                        .border(borderStroke.dp, Color.Black, RoundedCornerShape(cornerRadiusV2.dp))
-                        .clickable {
-                            if (state != PostImageState.INTERACTABLE) return@clickable
-                            showPrimaryAsMain = !showPrimaryAsMain
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        },
-                    placeholder = Utils.debugPlaceholderPost(id = MR.drawable.post_example),
-                    model = primary,
-                    contentDescription = "primary"
-                )
 
-                if (showPrimaryAsMain) {
-                    AsyncImage(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(cornerRadiusV2.dp))
-                            .border(
-                                borderStroke.dp,
-                                Color.Black,
-                                RoundedCornerShape(cornerRadiusV2.dp)
-                            )
-                            .clickable {
-                                if (state != PostImageState.INTERACTABLE) return@clickable
-                                showPrimaryAsMain = !showPrimaryAsMain
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            },
-                        placeholder = Utils.debugPlaceholderPost(id = MR.drawable.post_example),
-                        model = secondary,
-                        contentDescription = "primary"
-                    )
-                }*/
+                when (val painter = if (!showPrimaryAsMain) primary else secondary) {
+                    is Resource.Success -> {
+                        KamelImage(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(cornerRadiusV2.dp))
+                                .border(borderStroke.dp, Color.Black, RoundedCornerShape(cornerRadiusV2.dp))
+                                .clickable {
+                                    if (state != PostImageState.INTERACTABLE) return@clickable
+                                    showPrimaryAsMain = !showPrimaryAsMain
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                },
+                            resource = painter,
+                            contentDescription = "realmoji",
+                        )
+                    }
+                    else -> { }
+                }
             }
         }
     }

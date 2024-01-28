@@ -14,16 +14,12 @@ import io.ktor.client.engine.darwin.Darwin
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.json.Json.Default.decodeFromString
 import kotlinx.serialization.json.Json.Default.encodeToString
-import org.jetbrains.skiko.OS
 import org.koin.dsl.module
 import pizza.xyz.befake.db.BeFakeDatabase
 import pizza.xyz.befake.db.Post
-import pizza.xyz.befake.model.dtos.feed.PostData
-import io.ktor.client.engine.engines
+import model.dtos.feed.PostData
 import io.ktor.util.InternalAPI
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
-import io.ktor.client.engine.ios.Ios
+import pizza.xyz.befake.model.dtos.feed.User
 
 
 class IOSPlatform: Platform {
@@ -42,6 +38,9 @@ actual fun platformModule(allowUnsafeTraffic: Boolean) = module {
             driver = driver,
             PostAdapter = Post.Adapter(
                 data_Adapter = postAdapter
+            ),
+            UserAdapter = pizza.xyz.befake.db.User.Adapter(
+                data_Adapter = userAdapter
             )
         )
         appDataDatabase
@@ -52,6 +51,14 @@ private val postAdapter = object : ColumnAdapter<PostData, String> {
     override fun decode(databaseValue: String) = decodeFromString(PostData.serializer(), databaseValue)
     override fun encode(value: PostData) = encodeToString(PostData.serializer(), value = value)
 }
+
+private val userAdapter = object : ColumnAdapter<User, String> {
+    override fun decode(databaseValue: String) = decodeFromString(User.serializer(), databaseValue)
+    override fun encode(value: User) = encodeToString(User.serializer(), value = value)
+}
+
+@Composable
+actual fun <T> StateFlow<T>.collectAsStateMultiplatform(): State<T> = collectAsState()
 
 actual inline fun <reified T : ViewModel> Module.viewModelDefinition(
     qualifier: Qualifier?,

@@ -20,6 +20,7 @@ import org.koin.core.logger.Level
 import org.koin.dsl.binds
 import org.koin.dsl.module
 import pizza.xyz.befake.db.BeFakeDatabase
+import pizza.xyz.befake.model.dtos.feed.User
 import pizza.xyz.befake.multiplatform.theme.BeFakeTheme
 import platformModule
 
@@ -37,7 +38,13 @@ class MainActivity : ComponentActivity() {
         }
         
         val database: BeFakeDatabase by inject()
-        database.postQueries.insert(null)
+        if (database.postQueries.getPost().executeAsOneOrNull() == null) {
+            database.postQueries.insert(null)
+        }
+        if (database.userQueries.getToken().executeAsOneOrNull()?.isBlank() != false) {
+            database.userQueries.insert(User(), "")
+
+        }
 
         setContent {
             BeFakeTheme {

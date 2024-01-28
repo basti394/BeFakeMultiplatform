@@ -8,20 +8,29 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import data.repository.FeedRepository
+import data.repository.UserRepository
 import data.service.PostService
 import pizza.xyz.befake.model.dtos.feed.FriendsPosts
+import pizza.xyz.befake.model.dtos.feed.User
 
 class PostDetailScreenViewModel(
     private val feedRepository: FeedRepository,
     private val postService: PostService,
+    private var userRepository: UserRepository
 ) : ViewModel() {
 
     private var _post = MutableStateFlow<FriendsPosts?>(null)
     val post = _post.asStateFlow()
 
+    private var _myUser = MutableStateFlow<User?>(null)
+    val myUser = _myUser.asStateFlow()
+
     fun getPost(username: String) {
         viewModelScope.launch {
             _post.value = feedRepository.getPostByUsername(username).first()
+        }
+        viewModelScope.launch {
+            _myUser.value = userRepository.getUser().first()
         }
     }
 

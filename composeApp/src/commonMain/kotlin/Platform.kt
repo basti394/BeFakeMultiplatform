@@ -23,4 +23,7 @@ expect inline fun <reified T : ViewModel> Module.viewModelDefinition(
     noinline definition: Definition<T>
 ): KoinDefinition<T>
 
+@Composable
+expect fun <T> StateFlow<T>.collectAsStateMultiplatform(): State<T>
+
 expect val defaultPlatformEngine: HttpClientEngine

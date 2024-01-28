@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /*
-Copyright (c) 2023 Kotlin pizza.xyz.befake.model.dtos.feed.pizza.xyz.befake.model.dtos.friendsOfFriends.pizza.xyz.befake.model.dtos.me.Data Classes Generated from JSON powered by http://www.json2kotlin.com
+Copyright (c) 2023 Kotlin pizza.xyz.befake.model.dtos.feed.pizza.xyz.befake.model.dtos.friendsOfFriends.model.dtos.me.Data Classes Generated from JSON powered by http://www.json2kotlin.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -17,7 +17,7 @@ For support, please feel free to contact me at https://www.linkedin.com/in/syeda
 @Serializable
 data class User (
 
-	@SerialName("id") val id : String,
-	@SerialName("username") val username : String,
-	@SerialName("profilePicture") val profilePicture : ProfilePicture?
+	@SerialName("id") val id : String = "",
+	@SerialName("username") val username : String = "",
+	@SerialName("profilePicture") val profilePicture : ProfilePicture? = null
 )
