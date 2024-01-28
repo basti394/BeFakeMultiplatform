@@ -1,0 +1,22 @@
+CREATE TABLE User(
+    id TEXT NOT NULL PRIMARY KEY,
+    username TEXT NOT NULL,
+    token TEXT NOT NULL
+);
+
+insert:
+INSERT OR REPLACE INTO User(id, username, token)
+VALUES (0, ?, ?);
+
+select:
+SELECT *
+FROM User;
+
+getToken:
+SELECT token FROM User WHERE id = 0;
+
+deleteToken:
+UPDATE User SET token = "" WHERE id = 0;
+
+delete:
+DELETE FROM User;

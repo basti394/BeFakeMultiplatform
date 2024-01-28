@@ -1,0 +1,13 @@
+import pizza.xyz.befake.model.dtos.feed.PostData;
+
+CREATE TABLE Post (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    data TEXT AS PostData
+);
+
+getPost:
+SELECT * FROM Post WHERE id = 0;
+
+insert:
+INSERT OR REPLACE INTO Post(id, data)
+VALUES (0, ?);
