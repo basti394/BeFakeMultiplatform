@@ -92,8 +92,10 @@ fun PostImagesV2(
                     },
                     onDragEnd = {
                         if (state != PostImageState.INTERACTABLE) return@detectDragGesturesAfterLongPress
-                        println("onDragEnd")
-                        playerState = VideoPlayerState.Ended
+                        if (post.postType != "bts")
+                            changeShowForeground(true)
+                        else
+                            playerState = VideoPlayerState.Ended
                     },
                     onDrag = { _, _ -> }
                 )

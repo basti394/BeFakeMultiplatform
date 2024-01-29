@@ -80,6 +80,12 @@ fun MainContent(
         ) {
             scene(
                 "home",
+                navTransition = NavTransition(
+                    destroyTransition = slideOutHorizontally(targetOffsetX = { -it }),
+                    createTransition = slideInHorizontally(initialOffsetX = { -it }),
+                    pauseTransition = slideOutHorizontally(targetOffsetX = { it }),
+                    resumeTransition = slideInHorizontally(initialOffsetX = { it }),
+                ),
             ) {
                 Scaffold(
                     topBar = {
@@ -89,6 +95,7 @@ fun MainContent(
                 ) { paddingValues ->
                     HomeScreen(
                         paddingValues = paddingValues,
+                        focusedPostUserName = it.query<String>("username"),
                         openDetailScreen = { username, selectedPost, focusInput, focusRealMojis -> navigator.navigate("post/$username?selectedPost=$selectedPost&focusInput=$focusInput&focusRealMojis=$focusRealMojis") }
                     )
                 }
@@ -111,7 +118,9 @@ fun MainContent(
                     postUsername = username,
                     selectedPost = selectedPost,
                     focusInput = focusInput,
-                    onBack = { navigator.goBack() },
+                    onBack = {
+                        navigator.navigate("home?username=$username")
+                    },
                     focusRealMojis = focusRealMojis,
                 )
             }

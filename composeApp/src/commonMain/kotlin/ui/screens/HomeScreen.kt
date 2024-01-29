@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -16,8 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.koin.compose.koinInject
 import model.dtos.feed.PostData
+import org.koin.compose.koinInject
 import pizza.xyz.befake.model.dtos.feed.User
 import ui.composables.Post
 import ui.composables.PostLoadingWithHeader
@@ -28,6 +30,7 @@ import ui.viewmodel.HomeScreenViewModel
 fun HomeScreen(
     paddingValues: PaddingValues,
     homeScreenViewModel: HomeScreenViewModel = koinInject(),
+    focusedPostUserName: String?,
     openDetailScreen: (String, Int, Boolean, Boolean) -> Unit
 ) {
 
@@ -39,6 +42,7 @@ fun HomeScreen(
         feed = feed?.data_,
         state = state,
         myUser = myUser,
+        focusedPostUserName = focusedPostUserName,
         openDetailScreen = openDetailScreen,
     )
 }
@@ -47,13 +51,27 @@ fun HomeScreen(
 fun HomeScreenContent(
     feed: PostData?,
     state: HomeScreenState,
+    focusedPostUserName: String?,
     myUser: User?,
     openDetailScreen: (String, Int, Boolean, Boolean) -> Unit
 ) {
 
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(focusedPostUserName) {
+        println("focusedPostUserName: $focusedPostUserName")
+        if (focusedPostUserName != null) {
+            val index = feed?.friendsPosts?.indexOfFirst { it.user.username == focusedPostUserName }
+            if (index != null) {
+                listState.scrollToItem(index)
+            }
+        }
+    }
+
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        state = listState
     ) {
         val count = feed?.friendsPosts?.size ?: 3
         item { Spacer(modifier = Modifier.height(100.dp)) }

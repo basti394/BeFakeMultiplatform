@@ -89,20 +89,22 @@ fun Post(
 ) {
 
     val state = rememberLazyListState()
-    LaunchedEffect(key1 = Unit) {
-        state.scrollToItem(post?.posts?.size?.minus(1) ?: 0)
+
+    var current by remember(post) {
+        mutableIntStateOf(post?.posts?.size?.minus(1) ?: 0)
     }
 
-    var current by remember {
-        mutableIntStateOf(post?.posts?.size?.minus(1) ?: 0)
+    LaunchedEffect(post) {
+        post?.let {
+            state.scrollToItem(it.posts.lastIndex)
+        }
     }
 
     if (post == null) {
         Spacer(modifier = modifier.fillMaxSize())
     } else {
-
         val userName = remember { post.user.username }
-        val profilePictureUrl = remember { post.user?.profilePicture?.url ?: "" }
+        val profilePictureUrl = remember { post.user.profilePicture?.url ?: "" }
         val profilePicture = remember {
             if (profilePictureUrl != "") profilePictureUrl else "https://ui-avatars.com/api/?name=${userName.first()}&background=random&size=100"
         }
