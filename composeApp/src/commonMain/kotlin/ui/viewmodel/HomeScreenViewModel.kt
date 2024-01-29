@@ -1,17 +1,15 @@
 package ui.viewmodel
 
+import data.repository.FeedRepository
+import data.repository.UserRepository
+import data.service.FriendsService
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import data.repository.FeedRepository
-import data.repository.UserRepository
-import data.service.FriendsService
-import pizza.xyz.befake.db.BeFakeDatabase
 import pizza.xyz.befake.db.Post
-import pizza.xyz.befake.model.dtos.feed.ProfilePicture
 import pizza.xyz.befake.model.dtos.feed.User
 
 class HomeScreenViewModel(
@@ -44,7 +42,6 @@ class HomeScreenViewModel(
                 if (feed.value != null && !updating) _state.value = HomeScreenState.Loaded
             }
         }
-
     }
 
     private suspend fun getProfilePicture() {
