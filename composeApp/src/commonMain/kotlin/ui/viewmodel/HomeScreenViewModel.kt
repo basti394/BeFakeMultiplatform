@@ -30,6 +30,10 @@ class HomeScreenViewModel(
     private var updating = true
 
     init {
+        val tempFeed = feedRepository.getFeedNow().data_
+        if (tempFeed != null && tempFeed.friendsPosts.isNotEmpty()) {
+            _state.value = HomeScreenState.Loaded
+        }
         viewModelScope.launch(Dispatchers.Default) {
             updating = true
             getProfilePicture()

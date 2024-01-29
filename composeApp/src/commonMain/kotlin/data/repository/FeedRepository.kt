@@ -2,19 +2,21 @@ package data.repository
 
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToOne
+import data.service.FriendsService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import data.service.FriendsService
+import model.dtos.feed.PostData
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import pizza.xyz.befake.db.BeFakeDatabase
 import pizza.xyz.befake.db.Post
 import pizza.xyz.befake.model.dtos.feed.FriendsPosts
-import model.dtos.feed.PostData
-import pizza.xyz.befake.db.BeFakeDatabase
 
 interface FeedRepository {
 
     fun getFeed(): Flow<Post>
+
+    fun getFeedNow(): Post
 
     suspend fun updateFeed()
 
@@ -29,6 +31,10 @@ class FeedRepositoryImpl(
 
     override fun getFeed(): Flow<Post> {
         return database.postQueries.getPost().asFlow().mapToOne()
+    }
+
+    override fun getFeedNow(): Post {
+        return database.postQueries.getPost().executeAsOne()
     }
 
     override suspend fun updateFeed() {

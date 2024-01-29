@@ -39,9 +39,7 @@ import kotlinx.coroutines.launch
 import pizza.xyz.befake.model.dtos.feed.Posts
 import pizza.xyz.befake.utils.Utils
 import ui.composables.PostLoading
-import ui.composables.PostLoadingWithHeader
 import kotlin.math.roundToInt
-
 
 
 enum class PostImageState {
