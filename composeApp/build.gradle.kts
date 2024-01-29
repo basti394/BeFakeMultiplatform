@@ -49,6 +49,8 @@ kotlin {
                 implementation(libs.ktor.client.android)
 
                 implementation(libs.sqldelight.android.driver)
+
+                implementation(libs.exoplayer)
             }
         }
         commonMain.dependencies {

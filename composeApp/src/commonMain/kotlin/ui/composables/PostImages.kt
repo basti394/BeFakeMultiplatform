@@ -1,5 +1,7 @@
 package pizza.xyz.befake.ui.composables
 
+import VideoPlayer
+import VideoPlayerState
 import androidx.compose.animation.core.animate
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,6 +34,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import getScreenSize
 import io.kamel.core.Resource
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
@@ -60,8 +63,6 @@ fun PostImagesV2(
     val cornerRadiusV2 by remember(height) { mutableFloatStateOf((height.value * 0.03).coerceIn(5.0, 16.5).toFloat()) }
     val borderStroke by remember(height) { mutableFloatStateOf((height.value * 0.0036).coerceIn(1.0, 2.0).toFloat()) }
 
-    //val context = LocalContext.current
-
     val coroutineScope = rememberCoroutineScope()
     var outerBoxSize by remember { mutableStateOf(Offset(0f, 0f)) }
     val haptic = LocalHapticFeedback.current
@@ -71,27 +72,8 @@ fun PostImagesV2(
         mutableStateOf(true)
     }
 
-    val isBTS = remember {
-        post.postType == "bts" && post.btsMedia != null
-    }
-
-    val exoPlayer = remember {
-        /*if (isBTS) {
-            SimpleExoPlayer.Builder(context).build().apply {
-                val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(context,
-                    Util.getUserAgent(context, context.packageName))
-
-                val source = ProgressiveMediaSource.Factory(dataSourceFactory)
-                    .createMediaSource(
-                        Uri.parse(
-                            post.btsMedia?.url
-                        ))
-                this.setMediaSource(source)
-                this.prepare()
-            }
-        } else {
-            null
-        }*/
+    var playerState by remember {
+        mutableStateOf(VideoPlayerState.Ended)
     }
 
     Box(
@@ -106,12 +88,12 @@ fun PostImagesV2(
                     onDragStart = {
                         if (state != PostImageState.INTERACTABLE) return@detectDragGesturesAfterLongPress
                         changeShowForeground(false)
+                        playerState = VideoPlayerState.Playing
                     },
                     onDragEnd = {
                         if (state != PostImageState.INTERACTABLE) return@detectDragGesturesAfterLongPress
-                        changeShowForeground(true)
-                        //exoPlayer?.pause()
-                        //exoPlayer?.seekTo(0L)
+                        println("onDragEnd")
+                        playerState = VideoPlayerState.Ended
                     },
                     onDrag = { _, _ -> }
                 )
@@ -136,35 +118,16 @@ fun PostImagesV2(
 
         if (!showForeground && (post.postType == "bts" && post.btsMedia != null) && state == PostImageState.INTERACTABLE) {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-
-            //exoPlayer?.play()
-            /*exoPlayer?.addListener(object : Player.Listener {
-                override fun onPlaybackStateChanged(state: Int) {
-                    if (state == Player.STATE_ENDED) {
-                        exoPlayer.pause()
-                        changeShowForeground(true)
-                        exoPlayer.seekTo(0L)
-                    }
-                }
-            })
-
-            Box(
+            VideoPlayer(
                 modifier = Modifier
-                    .height(height.dp)
-                    .width(LocalConfiguration.current.screenWidthDp.dp)
+                    .height(height)
+                    .width(getScreenSize().first.dp)
                     .clip(RoundedCornerShape(cornerRadiusV2.dp)),
+                url = post.btsMedia.url,
+                state = playerState,
             ) {
-                AndroidView(
-                    factory = { context ->
-                        PlayerView(context).apply {
-                            player = exoPlayer
-                            this.controllerAutoShow = false
-                            useController = false
-                            resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT
-                        }
-                    }
-                )
-            }*/
+                changeShowForeground(true)
+            }
         } else {
             when (val painter = if (showPrimaryAsMain) primary else secondary) {
                 is Resource.Success -> {

@@ -1,6 +1,7 @@
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Modifier
 import com.squareup.sqldelight.ColumnAdapter
 import com.squareup.sqldelight.drivers.native.NativeSqliteDriver
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
@@ -65,6 +66,15 @@ private val userAdapter = object : ColumnAdapter<User, String> {
 actual fun getScreenSize(): Pair<Int, Int> {
     val screen = UIScreen.mainScreen
     return Pair(screen.bounds.useContents { (size.width).toInt() }, screen.bounds.useContents { (size.height).toInt() })
+
+}
+
+actual fun VideoPlayer(
+    modifier: Modifier,
+    url: String,
+    state: VideoPlayerState,
+    onEnd: () -> Unit,
+) {
 
 }
 

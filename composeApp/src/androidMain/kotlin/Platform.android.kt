@@ -1,9 +1,25 @@
+import android.net.Uri
 import android.os.Build
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+import com.google.android.exoplayer2.ui.PlayerView
+import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.Util
 import com.squareup.sqldelight.ColumnAdapter
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
@@ -68,6 +84,71 @@ private val userAdapter = object : ColumnAdapter<User, String> {
 @Composable
 actual fun getScreenSize(): Pair<Int, Int> {
     return Pair(LocalConfiguration.current.screenWidthDp, LocalConfiguration.current.screenHeightDp)
+}
+
+@Composable
+actual fun VideoPlayer(
+    modifier: androidx.compose.ui.Modifier,
+    url: String,
+    state: VideoPlayerState,
+    onEnd: () -> Unit,
+) {
+
+    var playState by remember(state) {
+        mutableStateOf(state)
+    }
+    var exoPlayer: SimpleExoPlayer? = null
+
+    LaunchedEffect(playState) {
+        if (state == VideoPlayerState.Playing) {
+            println("start playing")
+            exoPlayer?.play()
+            exoPlayer?.addListener(object : Player.Listener {
+                override fun onPlaybackStateChanged(state: Int) {
+                    if (state == Player.STATE_ENDED) {
+                        playState = VideoPlayerState.Ended
+                    }
+                }
+            })
+        } else {
+            println("pause playing")
+            exoPlayer?.pause()
+            exoPlayer?.seekTo(0L)
+            onEnd()
+        }
+    }
+
+    Box(
+        modifier = modifier,
+    ) {
+        AndroidView(
+            factory = { context ->
+
+                exoPlayer = SimpleExoPlayer.Builder(context).build().apply {
+                    val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
+                        context,
+                        Util.getUserAgent(context, context.packageName)
+                    )
+
+                    val source = ProgressiveMediaSource.Factory(dataSourceFactory)
+                        .createMediaSource(
+                            Uri.parse(
+                                url
+                            )
+                        )
+                    this.setMediaSource(source)
+                    this.prepare()
+                }
+
+                PlayerView(context).apply {
+                    player = exoPlayer
+                    this.controllerAutoShow = false
+                    useController = false
+                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT
+                }
+            }
+        )
+    }
 }
 
 @Composable

@@ -43,7 +43,7 @@ class HomeScreenViewModel(
         viewModelScope.launch {
             feedRepository.getFeed().collect {
                 _feed.value = it
-                if (feed.value != null && !updating) _state.value = HomeScreenState.Loaded
+                if (feed.value != null) _state.value = HomeScreenState.Loaded
             }
         }
     }

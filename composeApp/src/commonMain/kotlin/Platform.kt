@@ -1,5 +1,6 @@
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.ui.Modifier
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.ktor.client.engine.HttpClientEngine
 import kotlinx.coroutines.flow.StateFlow
@@ -23,6 +24,19 @@ expect inline fun <reified T : ViewModel> Module.viewModelDefinition(
 
 @Composable
 expect fun getScreenSize(): Pair<Int, Int>
+
+@Composable
+expect fun VideoPlayer(
+    modifier: Modifier,
+    url: String,
+    state: VideoPlayerState,
+    onEnd: () -> Unit,
+)
+
+enum class VideoPlayerState {
+    Playing,
+    Ended,
+}
 
 @Composable
 expect fun <T> StateFlow<T>.collectAsStateMultiplatform(): State<T>
