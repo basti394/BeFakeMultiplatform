@@ -1,16 +1,18 @@
 import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.squareup.sqldelight.ColumnAdapter
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
-import io.ktor.client.engine.*
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.android.Android
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.json.Json.Default.decodeFromString
 import kotlinx.serialization.json.Json.Default.encodeToString
+import model.dtos.feed.PostData
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.definition.Definition
@@ -18,9 +20,8 @@ import org.koin.core.definition.KoinDefinition
 import org.koin.core.module.Module
 import org.koin.core.qualifier.Qualifier
 import org.koin.dsl.module
-import pizza.xyz.befake.db.Post
-import model.dtos.feed.PostData
 import pizza.xyz.befake.db.BeFakeDatabase
+import pizza.xyz.befake.db.Post
 import pizza.xyz.befake.model.dtos.feed.User
 
 class AndroidPlatform : Platform {
@@ -62,6 +63,11 @@ private val postAdapter = object : ColumnAdapter<PostData, String> {
 private val userAdapter = object : ColumnAdapter<User, String> {
     override fun decode(databaseValue: String) = decodeFromString(User.serializer(), databaseValue)
     override fun encode(value: User) = encodeToString(User.serializer(), value = value)
+}
+
+@Composable
+actual fun getScreenSize(): Pair<Int, Int> {
+    return Pair(LocalConfiguration.current.screenWidthDp, LocalConfiguration.current.screenHeightDp)
 }
 
 @Composable

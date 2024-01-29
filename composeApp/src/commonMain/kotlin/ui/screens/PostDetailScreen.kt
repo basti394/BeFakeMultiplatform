@@ -51,6 +51,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -81,21 +82,20 @@ import io.kamel.core.Resource
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
 import model.dtos.feed.Comment
 import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
+import org.koin.compose.koinInject
 import pizza.xyz.befake.model.dtos.feed.Posts
 import pizza.xyz.befake.model.dtos.feed.RealMojis
-import pizza.xyz.befake.model.dtos.feed.User
 import pizza.xyz.befake.ui.composables.BeFakeInputField
-import ui.composables.Dot
-import ui.composables.DownloadPostMenu
 import pizza.xyz.befake.ui.composables.PostImageState
 import pizza.xyz.befake.ui.composables.PostImagesV2
-import ui.composables.ProfilePicture
 import pizza.xyz.befake.utils.Utils
 import pizza.xyz.befake.utils.Utils.formatRealMojis
 import pizza.xyz.befake.utils.Utils.isScrolledToTheTop
+import ui.composables.Dot
+import ui.composables.DownloadPostMenu
+import ui.composables.ProfilePicture
 import ui.viewmodel.PostDetailScreenViewModel
 import kotlin.math.absoluteValue
 
@@ -193,7 +193,7 @@ private fun PostDetailScreenContent(
     //val context = LocalContext.current
 
     var height by remember {
-        mutableIntStateOf(200)
+        mutableFloatStateOf(200f)
     }
 
     val lazyListState = rememberLazyListState()
@@ -215,7 +215,7 @@ private fun PostDetailScreenContent(
                                     targetValue = 200f,
                                     animationSpec = tween(300)
                                 ) { value, _ ->
-                                    height = value.toInt()
+                                    height = value
                                 }
                             }
                         }
@@ -227,7 +227,7 @@ private fun PostDetailScreenContent(
                                     targetValue = 450f,
                                     animationSpec = tween(300)
                                 ) { value, _ ->
-                                    height = value.toInt()
+                                    height = value
                                 }
                             }
                         }
@@ -399,7 +399,7 @@ private fun PostDetailScreenContent(
                                         targetValue = 450f,
                                         animationSpec = tween(350)
                                     ) { value, _ ->
-                                        height = value.toInt()
+                                        height = value
                                     }
                                 }
                             }
@@ -486,7 +486,7 @@ fun SeparatorLine(
 fun Posts(
     posts: List<Posts>?,
     current: Int,
-    height: Int,
+    height: Float,
     onSwipe: (Int) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -519,7 +519,7 @@ fun Posts(
                 showForeground = true,
                 changeShowForeground = {},
                 state = PostImageState.INTERACTABLE,
-                height = height
+                height = height.dp
             )
             Spacer(modifier = Modifier.height(16.dp))
 

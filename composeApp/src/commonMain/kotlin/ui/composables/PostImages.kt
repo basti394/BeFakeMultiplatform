@@ -29,6 +29,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import io.kamel.core.Resource
@@ -53,11 +54,11 @@ fun PostImagesV2(
     showForeground: Boolean,
     changeShowForeground: (Boolean) -> Unit,
     state: PostImageState,
-    height: Int,
+    height: Dp,
 ) {
-    val borderMarginV2 by remember(height) { mutableFloatStateOf((height * 0.1).coerceIn(10.0, 55.0).toFloat()) }
-    val cornerRadiusV2 by remember(height) { mutableFloatStateOf((height * 0.03).coerceIn(5.0, 16.5).toFloat()) }
-    val borderStroke by remember(height) { mutableFloatStateOf((height * 0.0036).coerceIn(1.0, 2.0).toFloat()) }
+    val borderMarginV2 by remember(height) { mutableFloatStateOf((height.value * 0.1).coerceIn(10.0, 55.0).toFloat()) }
+    val cornerRadiusV2 by remember(height) { mutableFloatStateOf((height.value * 0.03).coerceIn(5.0, 16.5).toFloat()) }
+    val borderStroke by remember(height) { mutableFloatStateOf((height.value * 0.0036).coerceIn(1.0, 2.0).toFloat()) }
 
     //val context = LocalContext.current
 
@@ -95,7 +96,7 @@ fun PostImagesV2(
 
     Box(
         modifier = Modifier
-            .width((height * 0.75).dp)
+            .width((height.value * 0.75).dp)
             .clip(RoundedCornerShape(cornerRadiusV2.dp))
             .onSizeChanged {
                 outerBoxSize = Offset(it.width.toFloat(), it.height.toFloat())
@@ -127,8 +128,8 @@ fun PostImagesV2(
 
             if (oldHeight == height) return@LaunchedEffect
 
-            offsetY = ((offsetY)/oldHeight * height)
-            offsetX = ((offsetX)/(oldHeight * 0.75f) * (height * 0.75f))
+            offsetY = ((offsetY)/oldHeight.value * height.value)
+            offsetX = ((offsetX)/(oldHeight.value * 0.75f) * (height.value * 0.75f))
 
             oldHeight = height
         }
@@ -180,8 +181,8 @@ fun PostImagesV2(
             Box(
                 modifier = Modifier
                     .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
-                    .height((height * 0.3).dp)
-                    .width(((height * 0.75) * 0.3).dp)
+                    .height((height.value * 0.3).dp)
+                    .width(((height.value * 0.75) * 0.3).dp)
                     .align(Alignment.TopStart)
                     .pointerInput(Unit) {
                         val boxSize = this.size
@@ -252,7 +253,7 @@ fun PostImagesPreviewINTERACTABLE() {
     PostImagesV2(
         post = Utils.testFeedPostNoLocation,
         state = PostImageState.INTERACTABLE,
-        height = 550,
+        height = 550f.dp,
         showForeground = showForeground,
         changeShowForeground = { showForeground = it },
     )
@@ -265,7 +266,7 @@ fun PostImagesPreviewStatic() {
     PostImagesV2(
         post = Utils.testFeedPostNoLocation,
         state = PostImageState.STATIC,
-        height = 200,
+        height = 200f.dp,
         showForeground = showForeground,
         changeShowForeground = {showForeground = it},
     )

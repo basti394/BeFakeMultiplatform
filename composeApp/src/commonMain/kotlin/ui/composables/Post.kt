@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.icerock.moko.resources.compose.stringResource
+import getScreenSize
 import io.kamel.core.Resource
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
@@ -60,9 +61,9 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import model.dtos.feed.Moment
 import pizza.xyz.befake.model.dtos.feed.FriendsPosts
 import pizza.xyz.befake.model.dtos.feed.Location
-import model.dtos.feed.Moment
 import pizza.xyz.befake.model.dtos.feed.Posts
 import pizza.xyz.befake.model.dtos.feed.RealMojis
 import pizza.xyz.befake.model.dtos.feed.User
@@ -206,6 +207,7 @@ fun Post(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PostImages(
     post: Posts,
@@ -216,6 +218,9 @@ fun PostImages(
     var showForeground by remember {
         mutableStateOf(true)
     }
+    var screenWidth by remember {
+        mutableStateOf(0)
+    }
 
     Box(
         modifier = Modifier.wrapContentSize(Alignment.Center)
@@ -225,7 +230,7 @@ fun PostImages(
             showForeground = showForeground,
             changeShowForeground = { showForeground = it },
             state = PostImageState.INTERACTABLE,
-            height = 550
+            height = (getScreenSize().first / 0.75f).dp,
         )
 
         if (showForeground) {

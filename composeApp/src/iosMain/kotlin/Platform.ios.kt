@@ -1,25 +1,28 @@
-import platform.UIKit.UIDevice
-import dev.icerock.moko.mvvm.viewmodel.ViewModel
-import org.koin.core.definition.Definition
-import org.koin.core.definition.KoinDefinition
-import org.koin.core.module.Module
-import org.koin.core.qualifier.Qualifier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import com.squareup.sqldelight.ColumnAdapter
 import com.squareup.sqldelight.drivers.native.NativeSqliteDriver
+import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.darwin.Darwin
+import io.ktor.util.InternalAPI
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.useContents
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.json.Json.Default.decodeFromString
 import kotlinx.serialization.json.Json.Default.encodeToString
+import model.dtos.feed.PostData
+import org.koin.core.definition.Definition
+import org.koin.core.definition.KoinDefinition
+import org.koin.core.module.Module
+import org.koin.core.qualifier.Qualifier
 import org.koin.dsl.module
 import pizza.xyz.befake.db.BeFakeDatabase
 import pizza.xyz.befake.db.Post
-import model.dtos.feed.PostData
-import io.ktor.util.InternalAPI
 import pizza.xyz.befake.model.dtos.feed.User
+import platform.UIKit.UIDevice
+import platform.UIKit.UIScreen
 
 
 class IOSPlatform: Platform {
@@ -55,6 +58,14 @@ private val postAdapter = object : ColumnAdapter<PostData, String> {
 private val userAdapter = object : ColumnAdapter<User, String> {
     override fun decode(databaseValue: String) = decodeFromString(User.serializer(), databaseValue)
     override fun encode(value: User) = encodeToString(User.serializer(), value = value)
+}
+
+@OptIn(ExperimentalForeignApi::class)
+@Composable
+actual fun getScreenSize(): Pair<Int, Int> {
+    val screen = UIScreen.mainScreen
+    return Pair(screen.bounds.useContents { (size.width).toInt() }, screen.bounds.useContents { (size.height).toInt() })
+
 }
 
 @Composable
